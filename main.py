@@ -3,7 +3,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-@app.route("/worker")
+@app.route("/worker", methods=["POST"])
 def worker():
     """
     HTTP Cloud Function.
