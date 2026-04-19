@@ -8,6 +8,7 @@ def worker():
     """
     HTTP Cloud Function.
     """
+    print("DEBUG MESSAGE: Entered worker function\n")
     data = request.get_json(silent=True) or {}
     print(data)
     zipcode = data["zipcode"]
