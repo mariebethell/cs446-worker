@@ -9,4 +9,4 @@ RUN playwright install --with-deps
 
 COPY . .
 
-CMD ["gunicorn", "-b", ":8080", "main:app"]
+CMD ["gunicorn", "-b", ":8080", "app:app"]
