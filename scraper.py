@@ -142,7 +142,8 @@ def get_accuweather_forecast(zipcode: str):
         return results
 
     except requests.exceptions.RequestException as e:
-        return {"error": f"API request failed: {e}"}
+        print(f"AccuWeather API request failed: {str(e)}")
+        return []
 
 
 def get_open_meteo_forecast(zipcode: str):
@@ -200,7 +201,8 @@ def get_open_meteo_forecast(zipcode: str):
         return forecast_list
 
     except requests.exceptions.RequestException as e:
-        return {"error": f"API request failed: {str(e)}"}
+        print(f"OpenMeteo API request failed: {str(e)}")
+        return []
 
 
 ### DATABASE UPDATE FUNCTIONS ###
@@ -231,11 +233,26 @@ def insert_forecast_into_table(city, state, zip_code, date, source, high_temp, l
     client.create_task(parent=parent, task=task)
 
 def update_db_with_all_forecasts(city, state, zip_code):
-    for forecast in get_wunderground_forecast(zip_code, state):
-        insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "wunderground", forecast.get("high"), forecast.get("low"))
-    for forecast in get_accuweather_forecast(zip_code):
-        insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "accuweather", forecast.get("high"), forecast.get("low"))
-    for forecast in get_open_meteo_forecast(zip_code):
-        insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "openmeteo", forecast.get("high"), forecast.get("low"))
+    wunderground_forecasts = get_wunderground_forecast(zip_code, state)
+    accuweather_forecasts = get_accuweather_forecast(zip_code)
+    open_meteo_forecasts = get_open_meteo_forecast(zip_code)
 
+    if wunderground_forecasts:
+        for forecast in wunderground_forecasts:
+            insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "wunderground", forecast.get("high"), forecast.get("low"))
+    else:
+        print(f"Error retrieving Wunderground forecast for {city}, {state}, {zip_code}")
+    
+    if accuweather_forecasts:
+        for forecast in accuweather_forecasts:
+            insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "accuweather", forecast.get("high"), forecast.get("low"))
+    else:
+        print(f"Error retrieving AccuWeather forecast for {city}, {state}, {zip_code}")
+    
+    if open_meteo_forecasts:
+        for forecast in open_meteo_forecasts:
+            insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "openmeteo", forecast.get("high"), forecast.get("low"))
+    else:
+        print(f"Error retrieving OpenMeteo forecast for {city}, {state}, {zip_code}")
+        
 ####################################

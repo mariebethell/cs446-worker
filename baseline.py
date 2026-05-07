@@ -24,7 +24,7 @@ def get_nws_historical_by_zip(zipcode, user_agent, country='us'):
     headers = {'User-Agent': user_agent}
     yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     
-    # 1. Geocode Zipcode to Lat/Lon
+    # zipcode to Lat/Lon
     nomi = pgeocode.Nominatim(country)
     loc = nomi.query_postal_code(zipcode)
     if  loc['latitude'] is None or loc['longitude'] is None:
@@ -33,7 +33,7 @@ def get_nws_historical_by_zip(zipcode, user_agent, country='us'):
     lat, lon = loc['latitude'], loc['longitude']
 
     try:
-        # 2. Find closest Station
+        # Find closest station
         points_res = requests.get(f"https://api.weather.gov/points/{lat},{lon}", headers=headers)
         points_res.raise_for_status()
         stations_url = points_res.json()['properties']['observationStations']
@@ -42,7 +42,7 @@ def get_nws_historical_by_zip(zipcode, user_agent, country='us'):
         stations_res.raise_for_status()
         station_id = stations_res.json()['features'][0]['properties']['stationIdentifier']
 
-        # 3. Get Yesterday's Observations
+        # Get yesterday's observations
         obs_url = f"https://api.weather.gov/stations/{station_id}/observations"
         params = {
             "start": f"{yesterday_date}T00:00:00Z",
@@ -53,7 +53,7 @@ def get_nws_historical_by_zip(zipcode, user_agent, country='us'):
         obs_res.raise_for_status()
         observations = obs_res.json()['features']
 
-        # 4. Parse High/Low
+        # Parse high/low
         temps_c = [
             o['properties']['temperature']['value'] 
             for o in observations if o['properties']['temperature']['value'] is not None
@@ -101,5 +101,5 @@ def insert_into_baseline_table(city, state, zip_code, date, source, high_temp, l
     client.create_task(parent=parent, task=task)
 
 def update_baseline_table(city, state, zip_code):
-    baseline = get_nws_historical_by_zip(zip_code)
+    baseline = get_nws_historical_by_zip(zip_code, "WeatherScore (toddbethell56@gmail.com)")
     insert_into_baseline_table(city, state, zip_code, baseline.get("day"), "NWS", baseline.get("high"), baseline.get("low"))
