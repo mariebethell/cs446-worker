@@ -17,7 +17,7 @@ def worker():
     city = data.get("city")
     state = data.get("state")
 
-    update_db_with_all_forecasts(zipcode, city, state)
+    update_db_with_all_forecasts(city, state, zipcode)
     update_baseline_table(city, state, zipcode)
 
 if __name__ == "__main__":
