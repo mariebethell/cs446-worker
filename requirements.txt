@@ -1,6 +1,6 @@
 flask
 gunicorn
-playwright
+playwright==1.59.0
 zipcodes
 pgeocode
 google-cloud-tasks==2.18.0
