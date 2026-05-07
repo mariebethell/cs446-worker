@@ -3,3 +3,4 @@ gunicorn
 playwright
 zipcodes
 pgeocode
+google-cloud-tasks==2.18.0
