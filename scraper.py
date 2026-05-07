@@ -35,7 +35,7 @@ def celsius_to_fahrenheit(c):
 ########################
 
 ### FORECAST RETRIEVAL FUNCTIONS ###
-def get_wunderground_forecast(zipcode: str):
+def get_wunderground_forecast(zipcode: str, state: str):
     """
     Get 10-day forecast from Wunderground.
     
@@ -47,7 +47,7 @@ def get_wunderground_forecast(zipcode: str):
     """
     start = time.time()
 
-    url = f"https://www.wunderground.com/forecast/us/ca/{zipcode}"
+    url = f"https://www.wunderground.com/forecast/us/{state.lower()}/{zipcode}"
     print(url)
 
     with sync_playwright() as p:
@@ -231,7 +231,7 @@ def insert_forecast_into_table(city, state, zip_code, date, source, high_temp, l
     client.create_task(parent=parent, task=task)
 
 def update_db_with_all_forecasts(city, state, zip_code):
-    for forecast in get_wunderground_forecast(zip_code):
+    for forecast in get_wunderground_forecast(zip_code, state):
         insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "wunderground", forecast.get("high"), forecast.get("low"))
     for forecast in get_accuweather_forecast(zip_code):
         insert_forecast_into_table(city, state, zip_code, forecast.get("day"), "accuweather", forecast.get("high"), forecast.get("low"))
